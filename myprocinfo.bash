@@ -1,5 +1,4 @@
 #!/bin/bash
-#*
 #* Copyright (c) 2018 Theodor Hoff <theodorhoff@hotmail.com>
 #*
 #* Permission to use, copy, modify, and/or distribute this software for any
