@@ -13,10 +13,47 @@
 #* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 #* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 #* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+function context {
+	ctext1=$(cat /proc/stat | grep ctxt | cut -f 2 -d " ");
+	sleep 1;
+	ctext2=$(cat /proc/stat | grep ctxt | cut -f 2 -d " ");
+	ctext=$(($ctext2 - $ctext1))
+	echo "Det var: $ctext content switch'er det siste sekundet"
+}
+
+function interrupts {
+	interrupt1=$(cat /proc/stat | grep intr | sed -e 's/intr //g' -e 's/ /+/g' | bc)
+	sleep 1;
+	interrupt2=$(cat /proc/stat | grep intr | sed -e 's/intr //g' -e 's/ /+/g' | bc)
+	interrupt=$(($interrupt2-$interrupt1))
+	echo "Antall interrupts siste sekund: $interrupt"
+}
+
+function cpuTid {
+	stat1=$(cat /proc/stat | head -n 1 | sed 's/cpu  //g')
+	sleep 1;
+	stat2=$(cat /proc/stat | head -n 1 | sed 's/cpu  //g')
+
+	totalCPU=$(($(echo $stat2 | sed 's/ /+/g' | bc)-$(echo $stat1 | sed 's/ /+/g' | bc)))
+	kernel=$(($(echo $stat2 | awk '{print $3}')-$(echo $stat1 | awk '{print $3}')))
+	user=$(($(echo $stat2 | awk '{print $1}')-$(echo $stat1 | awk '{print $1}')))
+	echo $(echo "scale=2;($kernel*100/$totalCPU)" | bc) \% av cputiden brukes i kernelmode
+	echo $(echo "scale=2;($user*100/$totalCPU)" | bc) \% av cputiden brukes i usermode
+}
+
 clear
 while [ 1 ]
 do
-echo "Valg:{1|2|3|4|5|6|9}"
+echo "Valg:
+	1|Hvem er jeg og hva er navnet på dette scriptet?
+	2|Hvor lenge er det siden siste boot?
+	3|Hvor mange prosesser og tråder finnes?
+	4|Hvor mange Context switch'er fant sted siste sekund?
+	5|Hvor stor andel av CPU-tiden ble benyttet i kernelmode og usermode siste sekund?
+	6|Hvor mange interrups fant sted siste sekund?
+	9|Avslutt."
+
+echo "-"
 read svar
         case $svar in
 		1)
@@ -35,16 +72,13 @@ read svar
 		;;
 		4)
 		clear
-		echo "(WIP)"
-		;;
+		context;;
 		5)
 		clear
-		echo "(WIP)"
-		;;
+		cpuTid;;
 		6)
 		clear
-		echo "(WIP)"
-		;;
+		interrupts;;
 		9)
 		clear
 		exit
