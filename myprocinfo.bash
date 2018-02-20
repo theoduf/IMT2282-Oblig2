@@ -13,33 +13,44 @@
 #* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 #* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 #* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+clear
 while [ 1 ]
 do
 echo "Valg:{1|2|3|4|5|6|9}"
 read svar
         case $svar in
 		1)
-                echo "Jeg er: $(whoami) Filen heter: $0"
+                clear
+		echo "Jeg er: $(whoami) Filen heter: $0"
 		;;
 		2)
+		clear
 		echo "Tid siden siste boot: $(uptime | awk '{print $3}')"
 		;;
 		3)
-		echo "sakfjd"
+		p=$(ps ax | wc -l)
+                t=$(ps amx | wc -l)
+                clear
+		echo "Det finnes: $p prosesser og $t tråder."
 		;;
 		4)
-		
+		clear
+		echo "(WIP)"
 		;;
 		5)
-		
+		clear
+		echo "(WIP)"
 		;;
 		6)
-		
+		clear
+		echo "(WIP)"
 		;;
 		9)
+		clear
 		exit
 		;;
 		*)
+		clear
 		echo "Ikke et Gyldig valg"
 		;;
 	esac
