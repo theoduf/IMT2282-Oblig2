@@ -14,31 +14,41 @@
 #* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 #* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 function context {
-	ctext1=$(cat /proc/stat | grep ctxt | cut -f 2 -d " ");
-	sleep 1;
-	ctext2=$(cat /proc/stat | grep ctxt | cut -f 2 -d " ");
-	ctext=$(($ctext2 - $ctext1))
-	echo "Det var: $ctext content switch'er det siste sekundet"
+	ctxt1=$(grep ctxt /proc/stat | awk '{print $2}')
+	echo "."
+	sleep 0.5
+	echo ".."
+	sleep 0.5
+	echo "..."
+        ctxt2=$(grep ctxt /proc/stat | awk '{print $2}')
+        ctxt=$(($ctxt2 - $ctxt1))
+	sleep 0.5
+	echo "Antall Context switch'er det siste sekundet var: $ctxt"
 }
 
 function interrupts {
-	interrupt1=$(cat /proc/stat | grep intr | sed -e 's/intr //g' -e 's/ /+/g' | bc)
-	sleep 1;
-	interrupt2=$(cat /proc/stat | grep intr | sed -e 's/intr //g' -e 's/ /+/g' | bc)
-	interrupt=$(($interrupt2-$interrupt1))
-	echo "Antall interrupts siste sekund: $interrupt"
+	ints=$(vmstat 1 2 | tail -1 | awk '{print $11}')
+        echo "Antall interrupts det siste sekundet:  $ints"
 }
 
 function cpuTid {
-	stat1=$(cat /proc/stat | head -n 1 | sed 's/cpu  //g')
-	sleep 1;
-	stat2=$(cat /proc/stat | head -n 1 | sed 's/cpu  //g')
-
-	totalCPU=$(($(echo $stat2 | sed 's/ /+/g' | bc)-$(echo $stat1 | sed 's/ /+/g' | bc)))
-	kernel=$(($(echo $stat2 | awk '{print $3}')-$(echo $stat1 | awk '{print $3}')))
-	user=$(($(echo $stat2 | awk '{print $1}')-$(echo $stat1 | awk '{print $1}')))
-	echo $(echo "scale=2;($kernel*100/$totalCPU)" | bc) \% av cputiden brukes i kernelmode
-	echo $(echo "scale=2;($user*100/$totalCPU)" | bc) \% av cputiden brukes i usermode
+	raw=( $(grep "cpu " /proc/stat) )
+        userfirst=$((${raw[1]} + ${raw[2]}))
+        kernelfirst=${raw[3]}
+        echo "."
+	sleep 0.5
+	echo ".."
+	sleep 0.5
+	echo "..."
+	raw=( $(grep "cpu " /proc/stat) )
+        user=$(( $((${raw[1]} + ${raw[2]})) - $userfirst ))
+        kernel=$(( ${raw[3]} - $kernelfirst ))
+        sum=$(($kernel + $user))
+        result="Andel av CPU-tiden siste sekund i usermode: \
+        $((( $user*100)/$sum ))% \
+ 	 og i kernelmode: $((($kernel*100)/$sum ))%"
+	sleep 0.5
+	echo $result
 }
 
 clear
